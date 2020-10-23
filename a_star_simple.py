@@ -5,10 +5,11 @@ def find_path(neighbour_fn,
               start,
               end,
               cost=lambda pos: 1,
-              passable=lambda pos, constraints=None: True,
+              passable=lambda pos: True,
               heuristic=util.manhattan_dist,
-              constraints=None,
-              extract=util.extract_fn):
+              stopCondOr=lambda x=0: False,
+              stopCondAnd=lambda x=0: True,
+              costs=0):
     """
     Returns the path between two nodes as a list of nodes using the A*
     algorithm.
@@ -29,28 +30,22 @@ def find_path(neighbour_fn,
     visited = set()
 
     # associated G and H costs for each tile (tuples of G, H)
-    costs = {start: (0, heuristic(start, end))}
+    if(not costs):
+        costs = {start: (0, heuristic(start, end))}
 
     # parents for each tile
     parents = {}
 
-    if(heuristic(start, end) == 0):
-        return [start]
-
-    while todo and (extract(end) not in visited):
+    while (((todo and (end not in visited)) and stopCondAnd()) or stopCondOr()):
         cur, c = todo.pop_smallest()
 
-        # print 'Current: ', cur, 'cost: ', sum(costs[cur])
-        # something = input('Press some key to continue...')
-
-        visited.add(extract(cur))
+        visited.add(cur)
 
         # check neighbours
         for n in neighbour_fn(cur):
             # skip it if we've already checked it, or if it isn't passable
-            if ((extract(n) in visited) or
-                    (not passable(n, constraints))):
-                # print 'Nbor: ', n, (not passable(n, constraints)), (extract(n) in visited)
+            if ((n in visited) or
+                    (not passable(n))):
                 continue
 
             if not (n in todo):
@@ -69,19 +64,17 @@ def find_path(neighbour_fn,
                     todo.update(n, g + h)
                     costs[n] = (g, h)
                     parents[n] = cur
-            # print '\nVisited: ', visited
-            # print '\nParents: ', parents
 
     # we didn't find a path
-    if extract(end) not in visited:
-        return [], 32767
+    if end not in visited:
+        return []
 
     # build the path backward
     path = []
-    while extract(end) != extract(start):
+    while end != start:
         path.append(end)
         end = parents[end]
     path.append(start)
     path.reverse()
 
-    return path, sum(costs[start])
+    return path, (len(path) - 1)
