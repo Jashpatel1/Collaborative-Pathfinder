@@ -1,79 +1,99 @@
-import util
+from gworld import *
+from visualize import *
+import a_star
+import cbsearch as cbs
 
-def find_path(neighbour_fn,
-              start,
-              end,
-              cost=lambda pos: 1,
-              passable=lambda pos: True,
-              heuristic=util.manhattan_dist,
-              stopCondOr=lambda x=0: False,
-              stopCondAnd=lambda x=0: True,
-              costs=0):
-    """
-    Returns the path between two nodes as a list of nodes using the A*
-    algorithm.
-    If no path could be found, an empty list is returned.
-    The cost function is how much it costs to leave the given node. This should
-    always be greater than or equal to 1, or shortest path is not guaranteed.
-    The passable function returns whether the given node is passable.
-    The heuristic function takes two nodes and computes the distance between the
-    two. Underestimates are guaranteed to provide an optimal path, but it may
-    take longer to compute the path. Overestimates lead to faster path
-    computations, but may not give an optimal path.
-    """
-    # tiles to check (tuples of (x, y), cost)
-    todo = util.PriorityQueue()
-    todo.update(start, 0)
 
-    # tiles we've been to
-    visited = set()
+def get_m_astar_path(world, start, goal, constraints=None):
+    ret_path = a_star.find_path(world.get_nbor_cells,
+                                start,
+                                goal,
+                                lambda cell: 1,
+                                lambda cell, constraints: world.passable(
+                                    cell, constraints),
+                                world.yxt_dist_heuristic,
+                                constraints)
+    return ret_path
 
-    # associated G and H costs for each tile (tuples of G, H)
-    if(not costs):
-        costs = {start: (0, heuristic(start, end))}
+# Go around block. Wait aside for agent1 to pass
+# Takes too long. Need better conflict handling
+# a = GridWorld(6,10)
+# a.add_rocks( [ (2,1),(1,2),(1,3),(1,4),(3,1),(2,3),(3,3),(3,4) ] )
+# a.add_agents( [ (1,0,3,2), (1,1,2,2) ] )
 
-    # parents for each tile
-    parents = {}
 
-    while (((todo and (end not in visited)) and stopCondAnd()) or stopCondOr()):
-        cur, c = todo.pop_smallest()
+# 2 agents. Narrow path with a open slot on the wall
+# Waits too long. Need better conflict handling
+a = GridWorld(6, 10)
+a.add_rocks([(1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
+             (2, 5), (1, 6), (1, 7), (1, 8), (1, 9), (0, 9)])
+a.add_agents([(0, 0, 0, 8), (0, 1, 0, 7)])
 
-        visited.add(cur)
+# 3 agents. Few rocks. More space to swerve around
+# a = GridWorld(6,10)
+# a.add_rocks( [ (4,0),(4,1),(4,2),(1,7),(1,8),(1,9) ] )
+# a.add_agents( [ (0,7,5,1), (5,3,0,9), (0,3,5,9) ] )
 
-        # check neighbours
-        for n in neighbour_fn(cur):
-            # skip it if we've already checked it, or if it isn't passable
-            if ((n in visited) or
-                    (not passable(n))):
-                continue
+# 3 agents. Single passable block
+# a = GridWorld(6,10)
+# a.add_rocks( [ (4,0),(4,1),(4,2),(4,3),(4,4),(3,4),(1,6),(1,7),(1,8),(1,9) ] )
+# a.add_agents( [ (0,7,5,1), (5,3,0,9), (0,3,5,9) ] )
 
-            if not (n in todo):
-                # we haven't looked at this tile yet, so calculate its costs
-                g = costs[cur][0] + cost(cur)
-                h = heuristic(n, end)
-                costs[n] = (g, h)
-                parents[n] = cur
-                todo.update(n, g + h)
-            else:
-                # if we've found a better path, update it
-                g, h = costs[n]
-                new_g = costs[cur][0] + cost(cur)
-                if new_g < g:
-                    g = new_g
-                    todo.update(n, g + h)
-                    costs[n] = (g, h)
-                    parents[n] = cur
+# 4 agents. Few rocks. More space to swerve around
+# Need better conflict handling for an optimal path
+# a = GridWorld(6,10)
+# a.add_rocks( [ (4,0),(4,1),(4,2),(1,7),(1,8),(1,9) ] )
+# a.add_agents( [ (0,7,5,1), (5,3,0,9), (0,3,5,9), (3,0,3,9) ] )
 
-    # we didn't find a path
-    if end not in visited:
-        return []
 
-    # build the path backward
-    path = []
-    while end != start:
-        path.append(end)
-        end = parents[end]
-    path.append(start)
-    path.reverse()
+vis = Visualize(a)
 
-    return path, (len(path) - 1)
+vis.draw_world()
+vis.draw_agents()
+
+vis.canvas.pack()
+vis.canvas.update()
+vis.canvas.after(500)
+
+agents = a.get_agents()
+
+conflict = False
+
+path_maxlen = 0
+
+constraints = []
+
+
+# cpos = a.aindx_cpos[agent]
+# goal = a.aindx_goal[agent]
+# start_cell = (cpos[0], cpos[1], 0)
+# goal_cell = (goal[0], goal[1], ANY_TIME)
+
+path_seq = dict()
+
+path_seq = cbs.search(agents, a)
+
+# path_seq[1] = [(0,7),(0,6]
+
+action_seq = dict()
+
+for agent in agents:
+    path_len = len(path_seq[agent])
+    path_maxlen = path_len if (path_len > path_maxlen) else path_maxlen
+    action_seq[agent] = a.path_to_action(agent, path_seq[agent])
+
+something = input('Press 2 + <Return> to continue...')
+
+for step in range(path_maxlen):
+    for agent in agents:
+        # print 'ActSeq: ', agent, action_seq[agent]
+        if(action_seq[agent]):
+            action = action_seq[agent].pop(0)
+            a.agent_action(agent, action)
+            vis.canvas.update()
+            vis.canvas.after(150)
+    vis.canvas.update()
+    vis.canvas.after(500)
+
+vis.canvas.update()
+vis.canvas.after(5000)
