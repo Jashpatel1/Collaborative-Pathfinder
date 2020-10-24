@@ -35,8 +35,8 @@ class Actions(object):
     WAIT = 4
 
 
-COLORS = ['red', 'green', 'blue', 'black',
-          'white', 'magenta', 'cyan', 'yellow']
+COLORS = ['white', 'green', 'blue', 'black',
+          'red', 'magenta', 'cyan', 'yellow']
 
 
 def extract_fn(a):

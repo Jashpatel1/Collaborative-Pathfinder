@@ -17,14 +17,12 @@ def find_path(neighbour_fn,
     The cost function is how much it costs to leave the given node. This should
     always be greater than or equal to 1, or shortest path is not guaranteed.
     The passable function returns whether the given node is passable.
-    The heuristic function takes two nodes and computes the distance between the
-    two. Underestimates are guaranteed to provide an optimal path, but it may
-    take longer to compute the path. Overestimates lead to faster path
-    computations, but may not give an optimal path.
+    The heuristic function takes two nodes and computes the manhattan distance 
+    between the two.
     """
     # tiles to check (tuples of (x, y), cost)
-    todo = util.PriorityQueue()
-    todo.update(start, 0)
+    pq = util.PriorityQueue()
+    pq.update(start, 0)
 
     # tiles we've been to
     visited = set()
@@ -36,8 +34,8 @@ def find_path(neighbour_fn,
     # parents for each tile
     parents = {}
 
-    while (((todo and (end not in visited)) and stopCondAnd()) or stopCondOr()):
-        cur, c = todo.pop_smallest()
+    while (((pq and (end not in visited)) and stopCondAnd()) or stopCondOr()):
+        cur, c = pq.pop_smallest()
 
         visited.add(cur)
 
@@ -48,20 +46,20 @@ def find_path(neighbour_fn,
                     (not passable(n))):
                 continue
 
-            if not (n in todo):
+            if not (n in pq):
                 # we haven't looked at this tile yet, so calculate its costs
                 g = costs[cur][0] + cost(cur)
                 h = heuristic(n, end)
                 costs[n] = (g, h)
                 parents[n] = cur
-                todo.update(n, g + h)
+                pq.update(n, g + h)
             else:
                 # if we've found a better path, update it
                 g, h = costs[n]
                 new_g = costs[cur][0] + cost(cur)
                 if new_g < g:
                     g = new_g
-                    todo.update(n, g + h)
+                    pq.update(n, g + h)
                     costs[n] = (g, h)
                     parents[n] = cur
 

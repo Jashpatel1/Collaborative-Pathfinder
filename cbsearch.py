@@ -11,7 +11,7 @@ def get_m_astar_path(world, start, goal, constraints=None):
                                 start,
                                 goal,
                                 lambda cell: 1,
-                                lambda cell, constraints=None: world.passable(
+                                lambda cell, constraints: world.passable(
                                     cell, constraints),
                                 world.tyx_dist_heuristic,
                                 constraints)
@@ -93,15 +93,6 @@ def get_conflicts(agents, path_seq, conflicts_db=None):
                         otheragent = tyx_map[step]
                         if(step not in conflicts_db[agent] and agent != otheragent):
                             conflicts_db[agent].update({step})
-                            # if(t > 0): conflicts_db[agent].update( { tplusone( path_seq[agent][t-1] ) } )
-                        # if(bool(conflicts_db[otheragent])):
-                        #     otherconflict = conflicts_db[otheragent]
-                        #     # if( steptime_agtb(otherconflict, step) ):
-                        #     if(step not in conflicts_db[otheragent]):
-                        #         conflicts_db[otheragent].update( {step} )
-                        # else:
-                        #     conflicts_db[otheragent].update( {step} )
-                    # print 'bTYXMap: ', tyx_map
     return conflicts_db
 
 
@@ -151,7 +142,6 @@ def search(agents, world):
         if(restart_loop):
             restart_loop = False
             print '\n\nStuck between a rock and a hard place?\nRapid Random Restart to the rescue!\n\n'
-            # something = input('Press 1 + <Return> to continue...')
             for agent in agents:
                 conflicts_db[agent] = set()
                 start = world.aindx_cpos[agent]
@@ -206,8 +196,6 @@ def search(agents, world):
         if(break_loop and not restart_loop):
             print 'Loop break!'
             break
-
-        # something = input('Press any key to continue...')
 
     for agent in agents:
         print '\nAgent ', agent, ' cost:', pathcost[agent], ' Path -- ', path_seq[agent]

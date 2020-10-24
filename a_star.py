@@ -7,8 +7,7 @@ def find_path(neighbour_fn,
               cost=lambda pos: 1,
               passable=lambda pos, constraints=None: True,
               heuristic=util.manhattan_dist,
-              constraints=None,
-              extract=util.extract_fn):
+              constraints=None):
     """
     Returns the path between two nodes as a list of nodes using the A*
     algorithm.
@@ -16,14 +15,12 @@ def find_path(neighbour_fn,
     The cost function is how much it costs to leave the given node. This should
     always be greater than or equal to 1, or shortest path is not guaranteed.
     The passable function returns whether the given node is passable.
-    The heuristic function takes two nodes and computes the distance between the
-    two. Underestimates are guaranteed to provide an optimal path, but it may
-    take longer to compute the path. Overestimates lead to faster path
-    computations, but may not give an optimal path.
+    The heuristic function takes two nodes and computes the manhattan distance 
+    between the two.
     """
     # tiles to check (tuples of (x, y), cost)
-    todo = util.PriorityQueue()
-    todo.update(start, 0)
+    pq = util.PriorityQueue()
+    pq.update(start, 0)
 
     # tiles we've been to
     visited = set()
@@ -37,48 +34,45 @@ def find_path(neighbour_fn,
     if(heuristic(start, end) == 0):
         return [start]
 
-    while todo and (extract(end) not in visited):
-        cur, c = todo.pop_smallest()
+    while pq and (end not in visited):
+        cur, c = pq.pop_smallest()
 
-        # print 'Current: ', cur, 'cost: ', sum(costs[cur])
-        # something = input('Press some key to continue...')
-
-        visited.add(extract(cur))
+        visited.add(cur)
 
         # check neighbours
         for n in neighbour_fn(cur):
             # skip it if we've already checked it, or if it isn't passable
-            if ((extract(n) in visited) or
+            if ((n in visited) or
                     (not passable(n, constraints))):
-                # print 'Nbor: ', n, (not passable(n, constraints)), (extract(n) in visited)
+                # print 'Nbor: ', n, (not passable(n, constraints)), (util.extract_fn(n) in visited)
                 continue
 
-            if not (n in todo):
+            if not (n in pq):
                 # we haven't looked at this tile yet, so calculate its costs
                 g = costs[cur][0] + cost(cur)
                 h = heuristic(n, end)
                 costs[n] = (g, h)
                 parents[n] = cur
-                todo.update(n, g + h)
+                pq.update(n, g + h)
             else:
                 # if we've found a better path, update it
                 g, h = costs[n]
                 new_g = costs[cur][0] + cost(cur)
                 if new_g < g:
                     g = new_g
-                    todo.update(n, g + h)
+                    pq.update(n, g + h)
                     costs[n] = (g, h)
                     parents[n] = cur
             # print '\nVisited: ', visited
             # print '\nParents: ', parents
 
     # we didn't find a path
-    if extract(end) not in visited:
+    if end not in visited:
         return [], 32767
 
     # build the path backward
     path = []
-    while extract(end) != extract(start):
+    while end != start:
         path.append(end)
         end = parents[end]
     path.append(start)

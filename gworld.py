@@ -85,19 +85,6 @@ class GridWorld:
         else:
             return True
 
-    # def get_nbor_cells(self, cell_pos):
-    #     y, x = cell_pos[0], cell_pos[1]
-    #     nbor_cells = []
-    #     if(x > 0):
-    #         nbor_cells.append((y, x-1))
-    #     if(x < self.w - 1):
-    #         nbor_cells.append((y, x+1))
-    #     if(y > 0):
-    #         nbor_cells.append((y-1, x))
-    #     if(y < self.h - 1):
-    #         nbor_cells.append((y+1, x))
-    #     return nbor_cells
-
     def get_nbor_cells(self, cell_pos):
         nbor_cells = []
         if(len(cell_pos) == 3):
