@@ -24,13 +24,6 @@ a.add_agents([(0, 0, 0, 8), (0, 1, 0, 7)])
 # a.add_agents([(0, 7, 5, 1), (5, 3, 0, 9), (0, 3, 5, 9)])
 
 # TEST CASE 4
-# 3 agents. Single passable block
-# a = GridWorld(6, 10)
-# a.add_rocks([(4, 0), (4, 1), (4, 2), (4, 3), (4, 4),
-#              (3, 4), (1, 6), (1, 7), (1, 8), (1, 9)])
-# a.add_agents([(0, 7, 5, 1), (5, 3, 0, 9), (0, 3, 5, 9)])
-
-# TEST CASE 5
 # 4 agents. Few rocks. More space to swerve around
 # Need better conflict handling for an optimal path
 # a = GridWorld(6, 10)
