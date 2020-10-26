@@ -2,19 +2,19 @@ from util import *
 from gworld import *
 from visualize import *
 import a_star_simple
-import a_star
+import a_star_constraint
 import random
 
 
-def get_m_astar_path(world, start, goal, constraints=None):
-    ret_path = a_star.find_path(world.get_nbor_cells,
-                                start,
-                                goal,
-                                lambda cell: 1,
-                                lambda cell, constraints: world.passable(
-                                    cell, constraints),
-                                world.tyx_dist_heuristic,
-                                constraints)
+def get_constraint_astar_path(world, start, goal, constraints=None):
+    ret_path = a_star_constraint.find_path(world.get_nbor_cells,
+                                           start,
+                                           goal,
+                                           lambda cell: 1,
+                                           lambda cell, constraints: world.passable(
+                                               cell, constraints),
+                                           world.tyx_dist_heuristic,
+                                           constraints)
     return ret_path
 
 
@@ -82,11 +82,10 @@ def get_conflicts(agents, path_seq, conflicts_db=None):
         if(path_seq[agent]):
             pathlen = len(path_seq[agent])
             for t, tstep in enumerate(path_seq[agent]):
-                twosteps = [tstep]  # , tplusone(tstep)]
+                twosteps = [tstep] 
                 if(t > 0):
                     twosteps.append(tplusone(path_seq[agent][t-1]))
                 for step in twosteps:
-                    # print 'bTYXMap: ', tyx_map
                     if(step not in tyx_map):
                         tyx_map[step] = agent
                     else:
@@ -123,7 +122,7 @@ def search(agents, world):
 
     iter_count = 1
     pickd_agents = []
-    while(True):  # iter_count < 5):
+    while(True):  
         max_pathlen = get_max_pathlen(agents, path_seq)
         path_seq = path_equalize(agents, path_seq, max_pathlen)
 
@@ -161,9 +160,7 @@ def search(agents, world):
                     start = cell_spacetime_conv(world.aindx_cpos[agent], 0)
                     goal = cell_spacetime_conv(
                         world.aindx_goal[agent], SOMETIME)
-                    # print 'Agent', agent, ': S', start, ' G', goal, '\n\t  C', constraints, '\n\t  OP', path_seq[
-                        # agent]
-                    nw_path, nw_pathlen = get_m_astar_path(
+                    nw_path, nw_pathlen = get_constraint_astar_path(
                         world, start, goal, constraints)
                     if(nw_path):
                         path_seq[agent] = nw_path
@@ -171,8 +168,6 @@ def search(agents, world):
                     else:
                         path_seq[agent] = [start]
                         restart_loop = True
-                    # print 'Agent', agent, ': S', start, ' G', goal, '\n\t  C', constraints, '\n\t  NP', nw_path, 'Len: ', nw_pathlen
-
         if not restart_loop:
             path_seq = path_equalize(agents, path_seq, SOMETIME)
             conflicts_db = get_conflicts(agents, path_seq, conflicts_db)

@@ -1,6 +1,5 @@
 from gworld import *
 from visualize import *
-import a_star
 import cbsearch as cbs
 
 # TEST CASE 1
@@ -13,10 +12,10 @@ import cbsearch as cbs
 # TEST CASE 2
 # 2 agents. Narrow path with a open slot on the wall
 # Waits too long. Need better conflict handling
-# a = GridWorld(6, 10)
-# a.add_rocks([(1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
-#              (2, 5), (1, 6), (1, 7), (1, 8), (1, 9), (0, 9)])
-# a.add_agents([(0, 0, 0, 8), (0, 1, 0, 7)])
+a = GridWorld(6, 10)
+a.add_rocks([(1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
+             (2, 5), (1, 6), (1, 7), (1, 8), (1, 9), (0, 9)])
+a.add_agents([(0, 0, 0, 8), (0, 1, 0, 7)])
 
 # TEST CASE 3
 # 3 agents. Few rocks. More space to swerve around
@@ -34,9 +33,9 @@ import cbsearch as cbs
 # TEST CASE 5
 # 4 agents. Few rocks. More space to swerve around
 # Need better conflict handling for an optimal path
-a = GridWorld(6, 10)
-a.add_rocks([(4, 0), (4, 1), (4, 2), (1, 7), (1, 8), (1, 9)])
-a.add_agents([(0, 7, 5, 1), (5, 3, 0, 9), (0, 3, 5, 9), (3, 0, 3, 9)])
+# a = GridWorld(6, 10)
+# a.add_rocks([(4, 0), (4, 1), (4, 2), (1, 7), (1, 8), (1, 9)])
+# a.add_agents([(0, 7, 5, 1), (5, 3, 0, 9), (0, 3, 5, 9), (3, 0, 3, 9)])
 
 
 vis = Visualize(a)
