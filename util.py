@@ -45,8 +45,12 @@ def extract_fn(a):
     # return a[1:]
 
 
+def euclidean_dist(a, b):
+    return ((a[0]-b[0])**2 + (a[1]-b[1])**2)**0.5
+
+
 def manhattan_dist(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    return abs(a[0]-b[0]) + abs(a[1]-b[1])
 
 
 def heapsort(l):
