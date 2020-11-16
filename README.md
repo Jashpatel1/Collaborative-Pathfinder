@@ -10,4 +10,4 @@ A CS323(Artificial Intelligence) Course Project to find a shortest collaborative
 
 ## Special Thanks
 - Implementation of Conflict-based search inspired from https://www.aaai.org/ocs/index.php/AAAI/AAAI12/paper/viewFile/5062/5239
-- Help for util.py, gworld.py and visualize.py taken from https://github.com/TheLastBanana/gridworld
+- Help for util.py, gworld.py and visualize.py taken from https://github.com/TheLastBanana/gridworld, https://github.com/gavincangan/multiagent-pathfinding
